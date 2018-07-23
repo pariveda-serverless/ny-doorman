@@ -22,13 +22,23 @@ def guess(event, context):
     }
     # print(image)
 
-    resp = client.search_faces_by_image(
-        CollectionId=rekognition_collection_id,
-        Image=image,
-        MaxFaces=1,
-        FaceMatchThreshold=70)
-
     s3 = boto3.resource('s3')
+
+    try:
+        resp = client.search_faces_by_image(
+            CollectionId=rekognition_collection_id,
+            Image=image,
+            MaxFaces=1,
+            FaceMatchThreshold=70)
+
+    except Exception as ex:
+        # no known faces detected, let the users decide in slack
+        print("No matches found, sending to unknown")
+        new_key = 'unknown/%s.jpg' % hashlib.md5(key.encode('utf-8')).hexdigest()
+        s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (bucket_name, key))
+        s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
+        s3.Object(bucket_name, key).delete()
+        return
 
     if len(resp['FaceMatches']) == 0:
         # no known faces detected, let the users decide in slack
@@ -37,6 +47,7 @@ def guess(event, context):
         s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (bucket_name, key))
         s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
         s3.Object(bucket_name, key).delete()
+        return
     else:
         print ("Face found")
         print (resp)

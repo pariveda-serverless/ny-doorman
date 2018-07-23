@@ -10,7 +10,7 @@ from threading import Thread
 # Setup the S3 client
 session = Session()
 s3 = session.create_client('s3')
-s3_bucket = 'doorman-faces'
+s3_bucket = 'deeplens.seattle.doorman.test'
 
 # setup the camera and frame
 ret, frame = awscam.getLastFrame()
@@ -58,7 +58,7 @@ def greengrass_infinite_infer_run():
         yscale = float(frame.shape[0]/input_height)
         xscale = float(frame.shape[1]/input_width)
 
-        doInfer = True
+        9- = True
         while doInfer:
             # Get a frame from the video stream
             ret, frame = awscam.getLastFrame()
