@@ -99,6 +99,8 @@ functions:
   # find person, function for greengrass device
   find-person:
     handler: find_person.function_handler
+    runtime: python2.7
+    role: arn:aws:iam::546464786011:role/service-role/AWSDeepLensLambdaRole
 
 # resources:
 #   Resources:
