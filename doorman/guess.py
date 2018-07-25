@@ -33,8 +33,8 @@ def guess(event, context):
 
     except Exception as ex:
         # no known faces detected, let the users decide in slack
-        print("No matches found, sending to unknown")
-        new_key = 'unknown/%s.jpg' % hashlib.md5(key.encode('utf-8')).hexdigest()
+        print("No faces found, sending to faceless")
+        new_key = 'faceless/%s.jpg' % hashlib.md5(key.encode('utf-8')).hexdigest()
         s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (bucket_name, key))
         s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
         s3.Object(bucket_name, key).delete()
