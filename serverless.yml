@@ -62,6 +62,10 @@ provider:
     SLACK_API_TOKEN: ${env:SLACK_API_TOKEN}
     SLACK_CHANNEL_ID: ${env:SLACK_CHANNEL_ID}
     REKOGNITION_COLLECTION_ID: ${env:REKOGNITION_COLLECTION_ID}
+    TRUPORTAL_USERNAME: ${env:TRUPORTAL_USERNAME}
+    TRUPORTAL_PASSWORD: ${env:TRUPORTAL_PASSWORD}
+    DOOR_ID: ${env:DOOR_ID}
+    TRUPORTAL_IP: ${env:TRUPORTAL_IP}
 # you can add packaging information here
 #package:
 #  include:

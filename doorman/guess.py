@@ -8,7 +8,10 @@ bucket_name = os.environ['BUCKET_NAME']
 slack_token = os.environ['SLACK_API_TOKEN']
 slack_channel_id = os.environ['SLACK_CHANNEL_ID']
 rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
-
+truportal_username = os.environ['TRUPORTAL_USERNAME']
+truportal_password = os.environ['TRUPORTAL_PASSWORD']
+door_id = os.environ['DOOR_ID']
+truportal_ip = os.environ['TRUPORTAL_IP']
 
 def guess(event, context):
     client = boto3.client('rekognition')
@@ -82,4 +85,20 @@ def guess(event, context):
             ]
         }
         resp = requests.post("https://slack.com/api/chat.postMessage", headers={'Content-Type':'application/json;charset=UTF-8', 'Authorization': 'Bearer %s' % slack_token}, json=data)
+
+        data = {
+            "username": truportal_username,
+            "password": truportal_password
+        }
+
+        resp = requests.post("https://%s/api/auth/login" % truportal_ip, data=data)
+
+        session_key = resp.json()['sessionKey']
+
+        headers = {
+            'Authentication': session_key
+        }
+
+        resp = requests.post("https://%s/api/devices/doors/%s/state?command=grant-access" % (truportal_ip, door_id), headers=headers, data=data)
+
         return {}
