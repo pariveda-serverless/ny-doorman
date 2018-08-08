@@ -146,7 +146,7 @@ def greengrass_infinite_infer_run():
                     ymax = int(yscale * obj['ymax'])
 
                     # hold off for timespan between matches to let the system catch up
-                    if datetime.utcnow() > (lastmatch + timedelta(seconds=15)):
+                    if datetime.utcnow() > (lastmatch + timedelta(seconds=1)):
 
                         try:
                             # if a person was found, upload the target area to S3 for further inspection

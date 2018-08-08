@@ -91,14 +91,31 @@ def guess(event, context):
             "password": truportal_password
         }
 
-        resp = requests.post("https://%s/api/auth/login" % truportal_ip, data=data)
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        auth_url = "https://%s/api/auth/login" % truportal_ip
+
+        print(auth_url)
+
+        resp = requests.post(auth_url, verify=False, headers=headers, json=data)
+
+        print(resp.json())
 
         session_key = resp.json()['sessionKey']
 
         headers = {
-            'Authentication': session_key
+            'Content-Type': 'application/json',
+            'Authorization': session_key
         }
 
-        resp = requests.post("https://%s/api/devices/doors/%s/state?command=grant-access" % (truportal_ip, door_id), headers=headers, data=data)
+        door_url = "https://%s/api/devices/doors/%s/state?command=grant-access" % (truportal_ip, door_id)
+
+        print(door_url)
+
+        resp = requests.post(door_url, verify=False, headers=headers, json=data)
+
+        print(resp.json())
 
         return {}
