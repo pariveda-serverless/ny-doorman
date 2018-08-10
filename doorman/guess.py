@@ -74,7 +74,7 @@ def guess(event, context):
 
         data = {
             "channel": slack_channel_id,
-            "text": "Welcome @%s" % username,
+            "text": "Welcome %s" % username,
             "link_names": True,
             "attachments": [
                 {
