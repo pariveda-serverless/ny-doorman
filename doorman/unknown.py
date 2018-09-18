@@ -8,6 +8,7 @@ from urllib.parse import parse_qs
 bucket_name = os.environ['BUCKET_NAME']
 slack_token = os.environ['SLACK_API_TOKEN']
 slack_channel_id = os.environ['SLACK_CHANNEL_ID']
+slack_training_channel_id = os.environ['SLACK_TRAINING_CHANNEL_ID']
 rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
 
 
@@ -15,7 +16,7 @@ def unknown(event, context):
     key = event['Records'][0]['s3']['object']['key']
 
     data = {
-        "channel": slack_channel_id,
+        "channel": slack_training_channel_id,
         "text": "I don't know who this is, can you tell me?",
         "attachments": [
             {

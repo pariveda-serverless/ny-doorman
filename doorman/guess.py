@@ -7,6 +7,7 @@ import os
 bucket_name = os.environ['BUCKET_NAME']
 slack_token = os.environ['SLACK_API_TOKEN']
 slack_channel_id = os.environ['SLACK_CHANNEL_ID']
+slack_training_channel_id = os.environ['SLACK_TRAINING_CHANNEL_ID']
 rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
 truportal_username = os.environ['TRUPORTAL_USERNAME']
 truportal_password = os.environ['TRUPORTAL_PASSWORD']
@@ -32,14 +33,11 @@ def guess(event, context):
             CollectionId=rekognition_collection_id,
             Image=image,
             MaxFaces=1,
-            FaceMatchThreshold=70)
+            FaceMatchThreshold=98)
 
     except Exception as ex:
-        # no known faces detected, let the users decide in slack
-        print("No faces found, sending to faceless")
-        new_key = 'faceless/%s.jpg' % hashlib.md5(key.encode('utf-8')).hexdigest()
-        s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (bucket_name, key))
-        s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
+        # no faces detected, delete image
+        print("No faces found, deleting")
         s3.Object(bucket_name, key).delete()
         return
 
@@ -56,6 +54,7 @@ def guess(event, context):
         print (resp)
         # move image
         user_id = resp['FaceMatches'][0]['Face']['ExternalImageId']
+        similarity = resp['FaceMatches'][0]['Similarity']
         new_key = 'detected/%s/%s.jpg' % (user_id, hashlib.md5(key.encode('utf-8')).hexdigest())
         s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (event_bucket_name, key))
         s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
@@ -74,13 +73,28 @@ def guess(event, context):
 
         data = {
             "channel": slack_channel_id,
-            "text": "Welcome %s" % username,
+            "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
             "link_names": True,
             "attachments": [
                 {
                     "image_url": "https://s3.amazonaws.com/%s/%s" % (bucket_name, new_key),
                     "fallback": "Nope?",
+                    "callback_id": new_key,
                     "attachment_type": "default",
+                    "actions": [{
+                            "name": "username",
+                            "text": "Select a username...",
+                            "type": "select",
+                            "data_source": "users"
+                        },
+                        {
+                            "name": "username",
+                            "text": "Guess Was Right",
+                            "style": "primary",
+                            "type": "button",
+                            "value": username
+                        }
+                    ]
                 }
             ]
         }
@@ -114,7 +128,7 @@ def guess(event, context):
 
         print(door_url)
 
-        resp = requests.post(door_url, verify=False, headers=headers, json=data)
+        #resp = requests.post(door_url, verify=False, headers=headers, json=data)
 
         print(resp.json())
 
