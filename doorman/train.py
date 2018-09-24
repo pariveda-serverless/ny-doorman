@@ -43,9 +43,13 @@ def train(event, context):
         s3 = boto3.resource('s3')
         s3.Object(bucket_name, key).delete()
 
-
     if data['actions'][0]['name'] == 'username':
-        user_id = data['actions'][0]['selected_options'][0]['value']
+
+        if not 'selected_options' in data['actions'][0]:
+            user_id = data['actions'][0]['value']
+        else:
+            user_id = data['actions'][0]['selected_options'][0]['value']
+
         new_key = 'trained/%s/%s.jpg' % (user_id, hashlib.md5(key.encode('utf-8')).hexdigest())
 
         message = {

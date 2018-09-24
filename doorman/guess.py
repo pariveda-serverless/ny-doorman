@@ -33,7 +33,7 @@ def guess(event, context):
             CollectionId=rekognition_collection_id,
             Image=image,
             MaxFaces=1,
-            FaceMatchThreshold=98)
+            FaceMatchThreshold=70)
 
     except Exception as ex:
         # no faces detected, delete image
@@ -52,9 +52,9 @@ def guess(event, context):
     else:
         print ("Face found")
         print (resp)
-        # move image
         user_id = resp['FaceMatches'][0]['Face']['ExternalImageId']
         similarity = resp['FaceMatches'][0]['Similarity']
+        # move image
         new_key = 'detected/%s/%s.jpg' % (user_id, hashlib.md5(key.encode('utf-8')).hexdigest())
         s3.Object(bucket_name, new_key).copy_from(CopySource='%s/%s' % (event_bucket_name, key))
         s3.ObjectAcl(bucket_name, new_key).put(ACL='public-read')
@@ -70,9 +70,15 @@ def guess(event, context):
         print(resp.content)
         print(resp.json())
         username = resp.json()['user']['name']
+        userid = resp.json()['user']['id']
+
+        if int(similarity) < 98:
+            target_channel_id = slack_training_channel_id
+        else:
+            target_channel_id = slack_channel_id
 
         data = {
-            "channel": slack_channel_id,
+            "channel": target_channel_id,
             "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
             "link_names": True,
             "attachments": [
@@ -92,7 +98,7 @@ def guess(event, context):
                             "text": "Guess Was Right",
                             "style": "primary",
                             "type": "button",
-                            "value": username
+                            "value": userid
                         }
                     ]
                 }
