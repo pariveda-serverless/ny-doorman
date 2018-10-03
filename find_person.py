@@ -120,6 +120,15 @@ def greengrass_infinite_infer_run():
             ret, frame = awscam.getLastFrame()
             if not ret:
                 raise Exception('Failed to get frame from the stream')
+
+            face_cascade = cv2.CascadeClassifier('/home/aws_cam/haarcascade_frontalface_default.xml')
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+
+            if len(faces) == 0:
+                client.publish(topic=iot_topic, payload="Skipping, no faces")
+                continue
+
             # Resize frame to the same size as the training set.
             frame_resize = cv2.resize(frame, (input_height, input_width))
             # Run the images through the inference engine and parse the results using

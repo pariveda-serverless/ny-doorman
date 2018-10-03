@@ -72,13 +72,24 @@ def guess(event, context):
         username = resp.json()['user']['name']
         userid = resp.json()['user']['id']
 
-        if int(similarity) < 98:
-            target_channel_id = slack_training_channel_id
-        else:
-            target_channel_id = slack_channel_id
+        if int(similarity) > 80:
+            data = {
+                "channel": slack_channel_id,
+                "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
+                "link_names": True,
+                "attachments": [
+                    {
+                        "image_url": "https://s3.amazonaws.com/%s/%s" % (bucket_name, new_key),
+                        "fallback": "Nope?",
+                        "callback_id": new_key,
+                        "attachment_type": "default"
+                    }
+                ]
+            }
+            resp = requests.post("https://slack.com/api/chat.postMessage", headers={'Content-Type':'application/json;charset=UTF-8', 'Authorization': 'Bearer %s' % slack_token}, json=data)
 
         data = {
-            "channel": target_channel_id,
+            "channel": slack_training_channel_id,
             "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
             "link_names": True,
             "attachments": [
@@ -104,6 +115,8 @@ def guess(event, context):
                 }
             ]
         }
+
+
         resp = requests.post("https://slack.com/api/chat.postMessage", headers={'Content-Type':'application/json;charset=UTF-8', 'Authorization': 'Bearer %s' % slack_token}, json=data)
 
         data = {
