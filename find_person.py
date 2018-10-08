@@ -121,14 +121,6 @@ def greengrass_infinite_infer_run():
             if not ret:
                 raise Exception('Failed to get frame from the stream')
 
-            face_cascade = cv2.CascadeClassifier('/home/aws_cam/haarcascade_frontalface_default.xml')
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray, 1.1, 5)
-
-            if len(faces) == 0:
-                client.publish(topic=iot_topic, payload="Skipping, no faces")
-                continue
-
             # Resize frame to the same size as the training set.
             frame_resize = cv2.resize(frame, (input_height, input_width))
             # Run the images through the inference engine and parse the results using
@@ -163,6 +155,14 @@ def greengrass_infinite_infer_run():
 
                                 # get the person image
                                 person = frame[ymin:ymax, xmin:xmax]
+
+                                face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+                                gray = cv2.cvtColor(person, cv2.COLOR_BGR2GRAY)
+                                faces = face_cascade.detectMultiScale(gray, 1.1, 5)
+
+                                if len(faces) != 1:
+                                    client.publish(topic=iot_topic, payload="Skipping, no faces")
+                                    continue
 
                                 # create a nice s3 file key
                                 s3_key = datetime.utcnow().strftime('%Y-%m-%d_%H_%M_%S.%f') + '.jpg'
