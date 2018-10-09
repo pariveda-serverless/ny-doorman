@@ -13,13 +13,16 @@ import awscam
 import cv2
 import greengrasssdk
 import time
+import base64
 from datetime import datetime, timedelta
 from botocore.session import Session
 
 # Setup the S3 client
 session = Session()
 s3 = session.create_client('s3')
-s3_bucket = 'deeplens.seattle.doorman.test'
+s3_bucket = os.environ['BUCKET_NAME']
+#rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
+#rekognition = session.create_client('rekognition')
 
 class LocalDisplay(Thread):
     """ Class for facilitating the local display of inference results
@@ -163,6 +166,17 @@ def greengrass_infinite_infer_run():
                                 if len(faces) != 1:
                                     client.publish(topic=iot_topic, payload="Skipping, no faces")
                                     continue
+
+                                #image = base64.b64encode(person)
+
+                                #resp = client.search_faces_by_image(
+                                #    CollectionId=rekognition_collection_id,
+                                #    Image=image,
+                                #    MaxFaces=1,
+                                #    FaceMatchThreshold=70)
+
+                                #if len(resp['FaceMatches']) > 0:
+                                #    client.publish(topic=iot_topic, payload=resp)
 
                                 # create a nice s3 file key
                                 s3_key = datetime.utcnow().strftime('%Y-%m-%d_%H_%M_%S.%f') + '.jpg'
