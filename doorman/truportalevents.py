@@ -20,11 +20,10 @@ def del_none(d):
             del_none(value)
     return d  # For convenience
 
-def lambda_handler(event, context):
+def truportalevents(event, context):
     truportal_username = os.environ['TRUPORTAL_USERNAME']
     truportal_password = os.environ['TRUPORTAL_PASSWORD']
     truportal_ip = os.environ['TRUPORTAL_IP']
-    slack_channel_id = os.environ['SLACK_CHANNEL_ID']
     slack_token = os.environ['SLACK_API_TOKEN']
 
     data = {
@@ -42,6 +41,8 @@ def lambda_handler(event, context):
 
     resp = requests.post(auth_url, verify=False, headers=headers, json=data)
 
+    print(resp.json())
+
     session_key = resp.json()['sessionKey']
 
     headers = {
@@ -51,7 +52,7 @@ def lambda_handler(event, context):
 
     door_ids = [4,5]
 
-    skippable_events = ["Door Unlocked", "Pending First User"]
+    skippable_events = ["Door Unlocked", "Pending First User", "Door Forced Alarm", "Door Forced Restore"]
 
     for door_id in door_ids:
         door_url = "https://%s/api/events?deviceId=%s&limit=10" % (truportal_ip, door_id)
@@ -88,7 +89,7 @@ def lambda_handler(event, context):
                     }
                 else:
                     data = {
-                        "channel": slack_channel_id,
+                        "channel": "sea-cret",
                         "text": ":alert: The Seattle office's {} has triggered a new message: {}".format(event["deviceName"].lower(), event["description"]),
                         "link_names": True,
                     }

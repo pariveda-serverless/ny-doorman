@@ -13,3 +13,4 @@ rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
 from doorman import guess
 from doorman import train
 from doorman import unknown
+from doorman import truportalevents

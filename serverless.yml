@@ -100,6 +100,10 @@ functions:
       - http:
           path: faces/train
           method: post
+  truportalevents:
+    handler: handler.truportalevents
+    events:
+      - schedule: rate(1 minute)
 
   # find person, function for greengrass device
   find-person:
