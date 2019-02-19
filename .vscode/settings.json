@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\doug.kuzenski\\.virtualenvs\\doorman--P8d1bJc\\Scripts\\python.exe",
+    "python.pythonPath": "venv/bin/python",
     "python.linting.pylintEnabled": false
 }

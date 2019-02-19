@@ -9,10 +9,12 @@ slack_token = os.environ['SLACK_API_TOKEN']
 slack_channel_id = os.environ['SLACK_CHANNEL_ID']
 slack_training_channel_id = os.environ['SLACK_TRAINING_CHANNEL_ID']
 rekognition_collection_id = os.environ['REKOGNITION_COLLECTION_ID']
-truportal_username = os.environ['TRUPORTAL_USERNAME']
-truportal_password = os.environ['TRUPORTAL_PASSWORD']
-door_id = os.environ['DOOR_ID']
-truportal_ip = os.environ['TRUPORTAL_IP']
+
+# TODO
+#truportal_username = os.environ['TRUPORTAL_USERNAME']
+#truportal_password = os.environ['TRUPORTAL_PASSWORD']
+#door_id = os.environ['DOOR_ID']
+#truportal_ip = os.environ['TRUPORTAL_IP']
 
 def guess(event, context):
     client = boto3.client('rekognition')
@@ -33,7 +35,7 @@ def guess(event, context):
             CollectionId=rekognition_collection_id,
             Image=image,
             MaxFaces=1,
-            FaceMatchThreshold=70)
+            FaceMatchThreshold=80)
 
     except Exception as ex:
         # no faces detected, delete image
@@ -75,7 +77,7 @@ def guess(event, context):
         if int(similarity) > 80:
             data = {
                 "channel": slack_channel_id,
-                "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
+                "text": "Welcome @{} ".format(username),
                 "link_names": True,
                 "attachments": [
                     {
@@ -90,7 +92,7 @@ def guess(event, context):
 
         data = {
             "channel": slack_training_channel_id,
-            "text": "Matched: {} (Similarity: {:.2f}%)".format(username, similarity),
+            "text": "Matched {} with similarity {:.2f}%)".format(username, similarity),
             "link_names": True,
             "attachments": [
                 {
@@ -118,7 +120,9 @@ def guess(event, context):
 
 
         resp = requests.post("https://slack.com/api/chat.postMessage", headers={'Content-Type':'application/json;charset=UTF-8', 'Authorization': 'Bearer %s' % slack_token}, json=data)
-
+        
+        # TODO
+        '''
         data = {
             "username": truportal_username,
             "password": truportal_password
@@ -150,5 +154,6 @@ def guess(event, context):
         #resp = requests.post(door_url, verify=False, headers=headers, json=data)
 
         print(resp.json())
-
+        '''
+        
         return {}

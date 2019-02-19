@@ -76,7 +76,7 @@ def train(event, context):
                 }
             },
             ExternalImageId=user_id,
-            QualityFilter='AUTO',
+            # QualityFilter='AUTO',
             DetectionAttributes=['DEFAULT']
         )
 
