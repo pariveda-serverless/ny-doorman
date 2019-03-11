@@ -57,10 +57,7 @@ jobs:
       - run:
           name: Install Python dependencies
           command: |
-            sudo apt install software-properties-common
-            sudo add-apt-repository ppa:deadsnakes/ppa
-            sudo apt-get update
-            sudo apt-get install python3.6 
+            docker pull python:3.6
             sudo apt-get install python3-venv
             python3 -m venv venv
             . venv/bin/activate
