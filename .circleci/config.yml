@@ -51,9 +51,9 @@ jobs:
       - checkout
       # Download and cache dependencies
       - *load-dependency-cache
-      - run: 
-        name: install node dependencies
-        command: npm i
+      - run:
+          name: Install dependencies
+          command: npm i
       - run:
           name: install dependencies
           command: |
