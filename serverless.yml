@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: doormantest
+service: ny-doorman
 
 custom:
   pythonRequirements:
@@ -39,8 +39,8 @@ provider:
        - "s3:GetObject"
        - "s3:DeleteObject"
       Resource:
-        - "arn:aws:s3:::bucket_name/*"
-        - "arn:aws:s3:::bucket_name"
+        - "arn:aws:s3:::${env:BUCKET_NAME}/*"
+        - "arn:aws:s3:::${env:BUCKET_NAME}"
 
  #   - Effect: "Allow"
  #     Action:
@@ -58,11 +58,11 @@ provider:
 
 # you can define service wide environment variables here
   environment:
-    BUCKET_NAME: bucket_name
-    SLACK_API_TOKEN: slack_api_token
-    SLACK_CHANNEL_ID: slack_channel_id
-    SLACK_TRAINING_CHANNEL_ID: slack_training_channel_id
-    REKOGNITION_COLLECTION_ID: collection_id
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    SLACK_API_TOKEN: ${env:SLACK_API_TOKEN}
+    SLACK_CHANNEL_ID: ${env:SLACK_CHANNELD_ID}
+    SLACK_TRAINING_CHANNEL_ID: ${env:SLACK_TRAINING_CHANNEL_ID}
+    REKOGNITION_COLLECTION_ID: ${env:REKOGNITION_COLLECTION_ID} # Setup outside of CloudFormation
     #TRUPORTAL_USERNAME: ${env:TRUPORTAL_USERNAME}
     #TRUPORTAL_PASSWORD: ${env:TRUPORTAL_PASSWORD}
     #DOOR_ID: ${env:DOOR_ID}
@@ -82,7 +82,7 @@ functions:
     handler: handler.guess
     events:
       - s3:
-          bucket: bucket_name
+          bucket: ${env:BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
             - prefix: incoming/
@@ -90,7 +90,7 @@ functions:
     handler: handler.unknown
     events:
       - s3:
-          bucket: bucket_name
+          bucket: ${env:BUCKET_NAME}
           event: s3:ObjectCreated:*
           rules:
             - prefix: unknown/
@@ -110,13 +110,36 @@ functions:
     handler: find_person.function_handler
     runtime: python2.7
 
-# resources:
-#   Resources:
-#     S3BucketDoormanfaces:
-#       Type: AWS::S3::Bucket
-#       Properties:
-#         BucketName: ${env:BUCKET_NAME}
-#         # add additional custom bucket configuration here
+resources:
+  Resources:
+    # S3BucketDoormanfaces:
+    #   Type: AWS::S3::Bucket
+    #   Properties:
+    #     BucketName: ${env:BUCKET_NAME}
+    #     # add additional custom bucket configuration here
+    Type: AWS::IAM::Policy
+    Properties: 
+      PolicyDocument: 
+        Id: S3Access
+        Version: '2012-10-17'
+        Statement:
+          - Sid: 1
+        Action:
+          - "s3:GetObject"
+          - "s3:DeleteObject"
+          - "s3:ListBucket"
+          - "s3:PutObject"
+          - "s3:PutObjectAcl"
+        Effect: Allow
+        Resource: 
+          - "arn:aws:s3:::${env:BUCKET_NAME}/*"
+          - "arn:aws:s3:::${env:BUCKET_NAME}"
+        Bucket: 
+          Ref: ${env:BUCKET_NAME} 
+      PolicyName: DeepLensS3Access
+      Roles:
+        - AWSDeepLensLambdaRole
+
 #
 plugins:
   - serverless-python-requirements

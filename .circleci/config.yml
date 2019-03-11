@@ -1,0 +1,76 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+anchors:
+  container-config: &container-config
+      docker:
+        - image: circleci/python:3.6.1
+          environment:
+            TERM: dumb
+  configure-aws-access: &configure-aws-access
+      run:
+        name: Configure AWS access
+        command: |
+          mkdir -p ~/.aws
+          cat > ~/.aws/credentials << EOL
+          [default]
+          aws_access_key_id = ${ACCESS_KEY_ID}
+          aws_secret_access_key = ${SECRET_ACCESS_KEY}
+          EOL
+  cache-dependencies: &cache-dependencies
+    save_cache:
+        paths:
+          - ./venv
+        key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+  load-dependency-cache: &load-dependency-cache
+    restore_cache:
+      keys:
+        - v1-dependencies-{{ checksum "requirements.txt" }}
+        # fallback to using the latest cache if no exact match is found
+        - v1-dependencies-
+  
+  prod-config: &prod-config
+    environment:
+      - STAGE: prod
+
+  deploy: &deploy
+    <<: *container-config
+    steps:
+      - checkout
+      - *load-dependency-cache
+      - *configure-aws-access
+      - run:
+          name: Deploy application
+          command: sls deploy -v
+
+version: 2
+jobs:
+  install:
+    <<: *container-config
+    working_directory: ~/repo
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - *load-dependency-cache
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - *cache-dependencies
+  deploy-prod:
+    <<: *deploy
+    <<: *prod-config
+
+workflows:
+  version: 2
+  deploy-pipeline:
+    jobs:
+      - install
+      - deploy-prod:
+        context: ny-doorman
+        requires:
+          - install
