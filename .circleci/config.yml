@@ -5,7 +5,7 @@
 anchors:
   container-config: &container-config
       docker:
-        - image: circleci/python:3.6.1
+        - image: circleci/node:10.15
           environment:
             TERM: dumb
   configure-aws-access: &configure-aws-access
