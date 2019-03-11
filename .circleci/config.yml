@@ -52,11 +52,13 @@ jobs:
       # Download and cache dependencies
       - *load-dependency-cache
       - run:
-          name: Install dependencies
+          name: Install Node dependencies
           command: npm i
       - run:
-          name: install dependencies
+          name: Install Python dependencies
           command: |
+            apt-get install python3.6 
+            apt-get install python3-venv
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
