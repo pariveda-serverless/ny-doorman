@@ -67,10 +67,11 @@ jobs:
 
 workflows:
   version: 2
+
   deploy-pipeline:
     jobs:
       - install
       - deploy-prod:
-        context: ny-doorman
-        requires:
-          - install
+          context: ny-doorman
+          requires:
+            - install
