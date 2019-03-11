@@ -20,16 +20,13 @@ anchors:
           EOL
   cache-dependencies: &cache-dependencies
     save_cache:
-        paths:
-          - ./venv
-        key: v1-dependencies-{{ checksum "requirements.txt" }}
+      key: dependency-cache-{{ checksum "package.json" }}
+      paths:
+        - node_modules
 
   load-dependency-cache: &load-dependency-cache
     restore_cache:
-      keys:
-        - v1-dependencies-{{ checksum "requirements.txt" }}
-        # fallback to using the latest cache if no exact match is found
-        - v1-dependencies-
+      key: dependency-cache-{{ checksum "package.json" }}
   
   prod-config: &prod-config
     environment:
@@ -54,6 +51,9 @@ jobs:
       - checkout
       # Download and cache dependencies
       - *load-dependency-cache
+      - run: 
+        name: install node dependencies
+        command: npm i
       - run:
           name: install dependencies
           command: |
