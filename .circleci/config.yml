@@ -58,7 +58,7 @@ jobs:
           name: Install Python dependencies
           command: |
             sudo apt install software-properties-common
-            sudo bash -c "yes | add-apt-repository ppa:deadsnakes/ppa && apt-get update && apt-get install -y python3.6"
+            sudo bash -c "yes | add-apt-repository ppa:deadsnakes/ppa && add-apt-repository -r ppa:deadsnakes/ppa && apt-get update && apt-get install -y python3.6"
             sudo apt-get install python3-venv
             python3 -m venv venv
             . venv/bin/activate
