@@ -44,26 +44,35 @@ anchors:
 
 version: 2
 jobs:
-  install:
+  install-deploy:
     <<: *container-config
+    environment:
+      STAGE: prod
     steps:
       - checkout
       # Download and cache dependencies
       - run:
           name: Install Node dependencies
           command: npm i
-      - *cache-dependencies
-  deploy-prod:
-    <<: *deploy
-    <<: *prod-config
+      # - *cache-dependencies
+      - *configure-aws-access
+      - run:
+          name: Deploy application
+          command: serverless deploy -v
+      
+
+  # deploy-prod:
+  #   <<: *deploy
+  #   <<: *prod-config
 
 workflows:
   version: 2
 
   deploy-pipeline:
     jobs:
-      - install
-      - deploy-prod:
+      - install-deploy:
           context: ny-doorman
-          requires:
-            - install
+      # - deploy-prod:
+      #     context: ny-doorman
+      #     requires:
+      #       - install
