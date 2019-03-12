@@ -46,11 +46,9 @@ version: 2
 jobs:
   install:
     <<: *container-config
-    working_directory: ~/repo
     steps:
       - checkout
       # Download and cache dependencies
-      - *load-dependency-cache
       - run:
           name: Install Node dependencies
           command: npm i
