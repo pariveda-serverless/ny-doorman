@@ -40,7 +40,7 @@ anchors:
       - *configure-aws-access
       - run:
           name: Deploy application
-          command: sls deploy -v
+          command: serverless deploy -v
 
 version: 2
 jobs:
