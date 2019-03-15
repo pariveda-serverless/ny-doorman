@@ -40,7 +40,7 @@ anchors:
       - *configure-aws-access
       - run:
           name: Deploy application
-          command: serverless deploy -v
+          command: npm run deploy
 
 version: 2
 jobs:
