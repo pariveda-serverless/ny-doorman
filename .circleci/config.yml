@@ -58,7 +58,7 @@ jobs:
       - *configure-aws-access
       - run:
           name: Deploy application
-          command: serverless deploy -v
+          command: npm run deploy
       
 
   # deploy-prod:
