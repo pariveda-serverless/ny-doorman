@@ -5,7 +5,7 @@
 anchors:
   container-config: &container-config
       docker:
-        - image: circleci/node:10.15
+        - image: circleci/python:3.6.4
           environment:
             TERM: dumb
   configure-aws-access: &configure-aws-access
@@ -50,7 +50,27 @@ jobs:
       STAGE: prod
     steps:
       - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
+      # - restore_cache:  # ensure this step occurs *before* installing dependencies
+      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - run:
+          command: |
+            sudo pip install pipenv
+            pipenv install
+      # - save_cache:
+      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      #     paths:
+      #       - ".venv"
+      #       - "/usr/local/bin"
+      #       - "/usr/local/lib/python3.6/site-packages"
       # Download and cache dependencies
+      - run:
+        command: |
+          wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+          env VERSION=`python tools/getnodeversion.py` make install DESTDIR=`nvm_version_path v$VERSION` PREFIX=""
+          nvm use 10.15
+          nvm install-latest-npm
       - run:
           name: Install Node dependencies
           command: npm i
