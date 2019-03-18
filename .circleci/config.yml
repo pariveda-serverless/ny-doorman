@@ -74,9 +74,10 @@ jobs:
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             nvm install 10.15 && nvm use 10.15
-      - run:
-          name: Install Node dependencies
-          command: npm i
+            npm i
+      # - run:
+      #     name: Install Node dependencies
+      #     command: npm i
       # - *cache-dependencies
       - *configure-aws-access
       - run:
