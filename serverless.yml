@@ -120,6 +120,7 @@ resources:
     S3DoormanPolicy:
       Type: AWS::IAM::Policy
       Properties: 
+        PolicyName: DeepLensS3Access
         PolicyDocument: 
           Id: S3Access
           Version: '2012-10-17'
@@ -135,9 +136,6 @@ resources:
           Resource: 
             - "arn:aws:s3:::${env:BUCKET_NAME}/*"
             - "arn:aws:s3:::${env:BUCKET_NAME}"
-          Bucket: 
-            Ref: ${env:BUCKET_NAME} 
-        PolicyName: DeepLensS3Access
         Roles:
           - AWSDeepLensLambdaRole
 
