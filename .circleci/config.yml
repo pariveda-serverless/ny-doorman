@@ -4,20 +4,20 @@
 #
 anchors:
   container-config: &container-config
-      docker:
-        - image: circleci/python:3.6.4
-          environment:
-            TERM: dumb
+    docker:
+      - image: circleci/python:3.6.4
+        environment:
+          TERM: dumb
   configure-aws-access: &configure-aws-access
-      run:
-        name: Configure AWS access
-        command: |
-          mkdir -p ~/.aws
-          cat > ~/.aws/credentials << EOL
-          [default]
-          aws_access_key_id = ${ACCESS_KEY_ID}
-          aws_secret_access_key = ${SECRET_ACCESS_KEY}
-          EOL
+    run:
+      name: Configure AWS access
+      command: |
+        mkdir -p ~/.aws
+        cat > ~/.aws/credentials << EOL
+        [default]
+        aws_access_key_id = ${ACCESS_KEY_ID}
+        aws_secret_access_key = ${SECRET_ACCESS_KEY}
+        EOL
   cache-dependencies: &cache-dependencies
     save_cache:
       key: dependency-cache-{{ checksum "package.json" }}
@@ -27,7 +27,7 @@ anchors:
   load-dependency-cache: &load-dependency-cache
     restore_cache:
       key: dependency-cache-{{ checksum "package.json" }}
-  
+
   prod-config: &prod-config
     environment:
       - STAGE: prod
@@ -52,7 +52,7 @@ jobs:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
-      - restore_cache:  # ensure this step occurs *before* installing dependencies
+      - restore_cache: # ensure this step occurs *before* installing dependencies
           key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           command: |
@@ -66,15 +66,16 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       # Download and cache dependencies
       - run:
+          name: Install nvm
           command: |
             wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
       - run:
+          name: Setup nvm and install node
           command: |
             export NVM_DIR="/home/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             nvm install 10.15 && nvm use 10.15
-            npm i
       # - run:
       #     name: Install Node dependencies
       #     command: npm i
@@ -82,8 +83,9 @@ jobs:
       - *configure-aws-access
       - run:
           name: Deploy application
-          command: npm run deploy
-      
+          command: |
+            nvm use 10.15
+            npm run deploy
 
   # deploy-prod:
   #   <<: *deploy
