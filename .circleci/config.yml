@@ -52,25 +52,25 @@ jobs:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
-      # - restore_cache:  # ensure this step occurs *before* installing dependencies
-      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - restore_cache:  # ensure this step occurs *before* installing dependencies
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           command: |
             sudo pip install pipenv
             pipenv install
-      # - save_cache:
-      #     key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-      #     paths:
-      #       - ".venv"
-      #       - "/usr/local/bin"
-      #       - "/usr/local/lib/python3.6/site-packages"
+      - save_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
       # Download and cache dependencies
       - run:
-        command: |
-          wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
-          env VERSION=`python tools/getnodeversion.py` make install DESTDIR=`nvm_version_path v$VERSION` PREFIX=""
-          nvm use 10.15
-          nvm install-latest-npm
+          command: |
+            wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+            env VERSION=`python tools/getnodeversion.py` make install DESTDIR=`nvm_version_path v$VERSION` PREFIX=""
+            nvm use 10.15
+            nvm install-latest-npm
       - run:
           name: Install Node dependencies
           command: npm i
