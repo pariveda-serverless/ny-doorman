@@ -8,6 +8,6 @@
     "serverless-python-requirements": "^4.3.0"
   },
   "scripts":{
-    "deploy": "sls deploy"
+    "serverless": "sls deploy"
   }
 }
