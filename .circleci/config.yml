@@ -88,6 +88,8 @@ jobs:
             export NVM_DIR="/home/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            sudo pip install pipenv
+            pipenv install
             nvm use 10.15
             npm run serverless
 
