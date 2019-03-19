@@ -122,20 +122,18 @@ resources:
       Properties: 
         PolicyName: DeepLensS3Access
         PolicyDocument: 
-          Id: S3Access
           Version: '2012-10-17'
           Statement:
-            - Sid: 1
-          Action:
-            - "s3:GetObject"
-            - "s3:DeleteObject"
-            - "s3:ListBucket"
-            - "s3:PutObject"
-            - "s3:PutObjectAcl"
-          Effect: Allow
-          Resource: 
-            - "arn:aws:s3:::${env:BUCKET_NAME}/*"
-            - "arn:aws:s3:::${env:BUCKET_NAME}"
+          - Effect: Allow
+            Action:
+              - "s3:GetObject"
+              - "s3:DeleteObject"
+              - "s3:ListBucket"
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
+            Resource: 
+              - "arn:aws:s3:::${env:BUCKET_NAME}/*"
+              - "arn:aws:s3:::${env:BUCKET_NAME}"
         Roles:
           - AWSDeepLensLambdaRole
 
