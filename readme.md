@@ -1,11 +1,22 @@
-Doorman
+#Doorman
 -------
-This will greet your coworkers on slack when they enter the office.
+This will open the door for your coworkers when they enter the office.
 
 This was send in as part of the [AWS Deeplens Hackaton](https://devpost.com/software/doorman-a1oh0e)
 
+## Tools
+- [Serverless Framework](https://serverless.com/framework/docs/) for easy serverless development and deployment
+- [CircleCI](https://circleci.com/) for application CI/CD - /.circleci/config.yml contains the job and workflow configurations
+- [AWS](https://console.aws.amazon.com) for application and infrastructure hosting, primarily API Gateway, Lambda, S3
 
-Setup
+## Slack development resources
+
+- [Slack API documentation](https://api.slack.com/methods)
+- [Slack message formatting](https://api.slack.com/docs/message-formatting)
+- [Slack interactive message documentation](https://api.slack.com/interactive-messages)
+- [Slack block builder](https://api.slack.com/tools/block-kit-builder)
+
+Initial Setup
 -----
 Quite a few steps, needs cleanup, most of it can be automated.
 

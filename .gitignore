@@ -22,3 +22,5 @@ venv/
 .DS_Store
 # Serverless directories
 .serverless
+# Wiki Images
+instruction-images/
