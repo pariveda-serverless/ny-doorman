@@ -8,6 +8,7 @@ anchors:
       - image: circleci/python:3.6.4
         environment:
           TERM: dumb
+          
   configure-aws-access: &configure-aws-access
     run:
       name: Configure AWS access
@@ -18,15 +19,28 @@ anchors:
         aws_access_key_id = ${ACCESS_KEY_ID}
         aws_secret_access_key = ${SECRET_ACCESS_KEY}
         EOL
-  cache-dependencies: &cache-dependencies
+
+  cache-node-dependencies: &cache-node-dependencies
     save_cache:
       key: dependency-cache-{{ checksum "package.json" }}
       paths:
         - node_modules
 
-  load-dependency-cache: &load-dependency-cache
+  load-node-dependency-cache: &load-node-dependency-cache
     restore_cache:
       key: dependency-cache-{{ checksum "package.json" }}
+
+  cache-python-dependencies: &cache-python-dependencies
+    save_cache:
+      key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      paths:
+        - ".venv"
+        - "/usr/local/bin"
+        - "/usr/local/lib/python3.6/site-packages"
+
+  load-python-dependency-cache: &load-python-dependency-cache
+    restore_cache: # ensure this step occurs *before* installing dependencies
+        key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
   prod-config: &prod-config
     environment:
@@ -36,7 +50,7 @@ anchors:
     <<: *container-config
     steps:
       - checkout
-      - *load-dependency-cache
+      - *load-node-dependency-cache
       - *configure-aws-access
       - run:
           name: Deploy application
@@ -52,23 +66,18 @@ jobs:
       - checkout
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.6/site-packages
-      - restore_cache: # ensure this step occurs *before* installing dependencies
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+      - *load-python-dependency-cache
       - run:
           command: |
             sudo pip install pipenv
             pipenv install
-      - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-          paths:
-            - ".venv"
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.6/site-packages"
+      - *cache-python-dependencies
       # Download and cache dependencies
       - run:
           name: Install nvm
           command: |
             wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+      - *load-node-dependency-cache
       - run:
           name: Setup nvm and install node
           command: |
@@ -77,10 +86,7 @@ jobs:
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
             nvm install 10.15 && nvm use 10.15
             npm install
-      # - run:
-      #     name: Install Node dependencies
-      #     command: npm i
-      # - *cache-dependencies
+      - *cache-node-dependencies
       - *configure-aws-access
       - run:
           name: Deploy application
